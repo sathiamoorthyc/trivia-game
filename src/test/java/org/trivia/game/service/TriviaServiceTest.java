@@ -1,5 +1,6 @@
 package org.trivia.game.service;
 
+import org.apache.coyote.BadRequestException;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -75,17 +76,17 @@ class TriviaServiceTest {
 
         // When
         when(triviaRepository.findById(triviaId)).thenReturn(Optional.empty());
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () -> {
             triviaService.submitAnswer(triviaId, requestResponse);
-        }, "IllegalArgumentException error was expected");
+        }, "BadRequestException error was expected");
 
         // Then
         assertNotNull(exception);
-        assertEquals("Invalid Trivia id [1] submitted", exception.getMessage());
+        assertEquals("No such question!", exception.getMessage());
     }
 
     @Test
-    public void submitCorrectAnswer(){
+    public void submitCorrectAnswer() throws BadRequestException {
         // Given
         int triviaId = 1;
         SubmitAnswerRequestResponse requestResponse = SubmitAnswerRequestResponse.builder().answer("London").build();
@@ -102,7 +103,7 @@ class TriviaServiceTest {
     }
 
     @Test
-    public void submitWrongAnswer(){
+    public void submitWrongAnswer() throws BadRequestException {
         // Given
         int triviaId = 1;
         SubmitAnswerRequestResponse requestResponse = SubmitAnswerRequestResponse.builder().answer("Manchester").build();
@@ -119,7 +120,7 @@ class TriviaServiceTest {
     }
 
     @Test
-    public void submitAnswerAfterMaxAttempt(){
+    public void submitAnswerAfterMaxAttempt() throws BadRequestException {
         // Given
         int triviaId = 1;
         SubmitAnswerRequestResponse requestResponse = SubmitAnswerRequestResponse.builder().answer("London").build();

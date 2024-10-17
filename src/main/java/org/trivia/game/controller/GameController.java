@@ -1,6 +1,7 @@
 package org.trivia.game.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class GameController {
 
     @PutMapping(value = "/reply/{triviaId}", consumes = {"application/json"})
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<SubmitAnswerRequestResponse> submitAnswer(@PathVariable int triviaId, @RequestBody SubmitAnswerRequestResponse submitAnswerRequest) {
+    public ResponseEntity<SubmitAnswerRequestResponse> submitAnswer(@PathVariable int triviaId, @RequestBody SubmitAnswerRequestResponse submitAnswerRequest) throws BadRequestException {
         SubmitAnswerRequestResponse response = triviaService.submitAnswer(triviaId, submitAnswerRequest);
         return new ResponseEntity<>(response, getAppropriateResponseStatus(response.getResult()));
     }

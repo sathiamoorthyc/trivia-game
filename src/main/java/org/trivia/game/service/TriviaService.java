@@ -2,6 +2,7 @@ package org.trivia.game.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class TriviaService {
         return convertToTriviaDto(savedTrivia);
     }
 
-    public SubmitAnswerRequestResponse submitAnswer(int triviaId, SubmitAnswerRequestResponse submitAnswerRequest){
+    public SubmitAnswerRequestResponse submitAnswer(int triviaId, SubmitAnswerRequestResponse submitAnswerRequest) throws BadRequestException {
         Optional<Trivia> optionalTrivia = triviaRepository.findById(triviaId);
         if(optionalTrivia.isPresent()){
             Trivia retrievedTrivia = optionalTrivia.get();
@@ -62,7 +63,7 @@ public class TriviaService {
                 return SubmitAnswerRequestResponse.builder().result("Max attempts reached!").build();
             }
         }else{
-            throw new IllegalArgumentException("Invalid Trivia id [" + triviaId + "] submitted");
+            throw new BadRequestException("No such question!");
         }
     }
 

@@ -1,6 +1,7 @@
 package org.trivia.game.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -178,5 +181,28 @@ public class TriviaGameIntegrationTest {
                 .andExpect(jsonPath("$.answer").doesNotExist())
                 .andExpect(jsonPath("$.result").exists())
                 .andExpect(jsonPath("$.result", is("Max attempts reached!")));
+    }
+
+    @Test
+    public void submitAnswer_with_incorrect_id() throws Exception {
+
+        // Given
+        SubmitAnswerRequestResponse request = SubmitAnswerRequestResponse.builder().answer("London").build();
+
+        // When
+        when(triviaRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        // Then
+
+        BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () -> {
+            mockMvc.perform(put("/trivia/reply/" + 1)
+                    .content(new ObjectMapper().writeValueAsString(request))
+                    .contentType(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON));
+        }, "BadRequestException error was expected");
+
+        // Then
+        assertNotNull(exception);
+        assertEquals("No such question!", exception.getMessage());
     }
 }
